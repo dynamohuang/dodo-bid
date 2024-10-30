@@ -11,16 +11,19 @@ contract AutionTest is Test {
 
     function setUp() public {
     
-        beneficiary = vm.address()
-        aution = new Aution(30,beneficiary,10);
+        beneficiary = vm.addr(1);
+        aution = new Aution(30,payable(beneficiary),10);
        
     }
 
     //
-    function testBid public(){
-        address public bidderA = vm.address()
-        vm.prank(bidderA)
-        aution.bid{value:20}()
-        assertEq(pendingReturns[bidderA], 20);
+    function testBid() public{
+        
+        address bidderA = vm.addr(2);
+        vm.prank(bidderA);
+        vm.deal(bidderA, 50);
+        aution.bid{value:20}();
+        assertEq(aution.highestBidder(), bidderA);
+        assertEq(aution.highestBid(), 20);
     }
 }

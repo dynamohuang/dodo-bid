@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;;
+pragma solidity ^0.8.13;
+
 contract Aution{
     address payable public beneficiary;
     uint public autionEnd;
     uint public increaseTime;
     address public highestBidder;
     uint  public highestBid;
-    mapping(address => uint) public pendingReturns;
+    mapping(address => uint) pendingReturns;
     bool ended;
 
     event HightestBidIncreased(address bidder, uint amount);
@@ -18,10 +19,14 @@ contract Aution{
         autionEnd = block.timestamp + _bidingtime;
 
     }
+     
+    function getPendingReturn(address user) external view returns (uint256) {
+        return pendingReturns[user];
+    }
 
     function bid() public payable{
-        require(block.timestamp <= autionEnd);
-        require(msg.value > highestBid);
+        require(block.timestamp <= autionEnd, "ended");
+        require(msg.value > highestBid, "too small!");
 
         if(highestBid > 0 ){
             pendingReturns[highestBidder] += highestBid;
@@ -32,13 +37,11 @@ contract Aution{
         if( autionEnd - block.timestamp < increaseTime ){
             autionEnd = block.timestamp + increaseTime;
         }
-        
-
         emit HightestBidIncreased(msg.sender, highestBid);
     }
 
     function withdraw() public returns(bool){
-        uint amount =  pendingReturns(msg.sender);
+        uint amount =  pendingReturns[msg.sender];
         if(amount > 0){
             pendingReturns[msg.sender] = 0;
             payable(msg.sender).transfer(amount);
@@ -47,7 +50,7 @@ contract Aution{
     }
 
     function endAuction() public{
-        require(block.timestamp >= auctionEnd," not yet ended!");
+        require(block.timestamp >= autionEnd," not yet ended!");
         require(!ended,"has already benen called");
         ended = true;
         emit AuctionEnded(highestBidder, highestBid);
