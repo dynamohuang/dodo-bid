@@ -8,7 +8,7 @@ contract Aution{
     address public highestBidder;
     uint  public highestBid;
     mapping(address => uint) pendingReturns;
-    bool ended;
+    bool public ended;
 
     event HightestBidIncreased(address bidder, uint amount);
     event  AuctionEnded(address winner, uint amount);
@@ -17,6 +17,7 @@ contract Aution{
         beneficiary = _beneficiary;
         increaseTime = _increaseTime;
         autionEnd = block.timestamp + _bidingtime;
+        ended = false;
 
     }
      
@@ -50,7 +51,7 @@ contract Aution{
     }
 
     function endAuction() public{
-        require(block.timestamp >= autionEnd," not yet ended!");
+        require(block.timestamp >= autionEnd);
         require(!ended,"has already benen called");
         ended = true;
         emit AuctionEnded(highestBidder, highestBid);
